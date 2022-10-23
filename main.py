@@ -36,20 +36,48 @@ def generuj_graf(n):
                 matrix[j][i] = 1
     return matrix
 
+
+def zachlanny(matrix, n):
+    kolory=[0]*n
+    print("Wierzchołki i ich kolory:\n")
+    for i in range(n):
+        if (kolory[i]==0):
+            check=0
+            barwa=1
+            while(check==0):
+                check=1
+                for j in range(n):
+                    if(matrix[i][j]==1):
+                        if (kolory[j]==barwa):
+                            check=0
+                            barwa+=1
+                            break
+            kolory[i]=barwa
+        print(i,"\t",kolory[i])
+    print("Użyto",max(kolory),"kolorów")
+    
+    
 def menu():
-    print("[1] Wczytaj z pliku graf.txt\n[2] Generuj graf\n")
-    wybor = input()
-    if wybor == '1':
-        matrix = plik()
-    elif wybor == '2':
-        try:
-            n = int(input("Podaj liczbe wierzcholkow: "))
-            matrix = generuj_graf(n)
-        except ValueError:
-            print("Musi byc int")
-    else:
-        print("Wybierz poprawna wartosc")
-    [print(*matrix[i]) for i in range(len(matrix))]
+    while (1==1):
+        print("[1] Wczytaj z pliku graf.txt\n[2] Generuj graf\n[3] Wypisz macierz grafu\n[4] Pokoloruj zachłannie\n[0] Zakończ program")
+        wybor = input()
+        if wybor == '1':
+            matrix = plik()
+        elif wybor == '2':
+            try:
+                n = int(input("Podaj liczbę wierzchołków: "))
+                matrix = generuj_graf(n)
+            except ValueError:
+                print("Musi być int")
+        elif wybor == '3':
+            [print(*matrix[i]) for i in range(len(matrix))]
+        elif wybor == '4':
+            zachlanny(matrix, len(matrix))
+        elif wybor == '0':
+            print("Koniec pracy programu")
+            break
+        else:
+            print("Wybierz poprawną wartość")
 
 
 if __name__ == '__main__':
