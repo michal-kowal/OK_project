@@ -1,4 +1,5 @@
 import random
+import GA
 
 
 def generuj_macierz(n):
@@ -16,7 +17,7 @@ def plik():
     with open('graf.txt') as file:
         for line in file:
             krawedzie.append(list(map(int, line.rstrip().split())))
-    n = krawedzie[0][0]     # liczba krawedzi
+    n = krawedzie[0][0]  # liczba krawedzi
     del krawedzie[0]
     file.close()
     matrix = generuj_macierz(n)
@@ -34,45 +35,59 @@ def generuj_graf(n):
             if rand == 1:
                 matrix[i][j] = 1
                 matrix[j][i] = 1
+    file = open("generuj.txt", "x")
+    file.write(str(n) + "\n")
+    for i in range(n):
+        for j in range(i, n):
+            if matrix[i][j] == 1:
+                file.write(str(i + 1) + " " + str(j + 1) + "\n")
     return matrix
 
 
 def zachlanny(matrix, n):
-    kolory=[0]*n
+    kolory = [0] * n
     print("Wierzchołki i ich kolory:\n")
     for i in range(n):
-        if (kolory[i]==0):
-            check=0
-            barwa=1
-            while(check==0):
-                check=1
+        if (kolory[i] == 0):
+            check = 0
+            barwa = 1
+            while (check == 0):
+                check = 1
                 for j in range(n):
-                    if(matrix[i][j]==1):
-                        if (kolory[j]==barwa):
-                            check=0
-                            barwa+=1
+                    if (matrix[i][j] == 1):
+                        if (kolory[j] == barwa):
+                            check = 0
+                            barwa += 1
                             break
-            kolory[i]=barwa
-        print(i,"\t",kolory[i])
-    print("Użyto",max(kolory),"kolorów")
-    
-    
+            kolory[i] = barwa
+        print(i, "\t", kolory[i])
+    print("Użyto", max(kolory), "kolorów")
+
+
 def menu():
-    while (1==1):
-        print("[1] Wczytaj z pliku graf.txt\n[2] Generuj graf\n[3] Wypisz macierz grafu\n[4] Pokoloruj zachłannie\n[0] Zakończ program")
+    wczytaj = False
+    generuj = False
+    while (1 == 1):
+        print(
+            "[1] Wczytaj z pliku graf.txt\n[2] Generuj graf\n[3] Wypisz macierz grafu\n[4] Pokoloruj zachłannie\n[5] GA\n[0] Zakończ program")
         wybor = input()
         if wybor == '1':
             matrix = plik()
+            wczytaj = True
         elif wybor == '2':
             try:
                 n = int(input("Podaj liczbę wierzchołków: "))
                 matrix = generuj_graf(n)
+                generuj = True
             except ValueError:
                 print("Musi być int")
-        elif wybor == '3':
+        elif wybor == '3' and (wczytaj or generuj):
             [print(*matrix[i]) for i in range(len(matrix))]
-        elif wybor == '4':
+        elif wybor == '4' and (wczytaj or generuj):
             zachlanny(matrix, len(matrix))
+        elif wybor == '5' and (wczytaj or generuj):
+            GA.genetic_algorithm(matrix)
+            break
         elif wybor == '0':
             print("Koniec pracy programu")
             break
