@@ -2,17 +2,22 @@ import random
 # REPREZENTACJA POPULACJI: [ [zestaw chromosomow], fitness, [ lista zlych wierzcholkow ] ]
 def genetic_algorithm(matrix):
     upper_bound = find_max_degree(matrix)
-    population = generate_population(10, upper_bound, matrix)  # [ [zestaw chromosomow], fitness, [ lista zlych wierzcholkow ] ]
-    n_generations = 20
+    population = generate_population(50, upper_bound, matrix)  # [ [zestaw chromosomow], fitness, [ lista zlych wierzcholkow ] ]
+    n_generations = 100
     for i in range(n_generations):
         print("generacja: " + str(i + 1))
         population.sort(key=lambda x: x[1])    # sortuje populacje od najmniejszego fitness index
         crossover(population, matrix)
-    res = max(population[0][0])
+    res = upper_bound
     for i in range(1, len(population)):
-        m = max(population[i][0])
-        if m < res and population[i][1] == 0:
-            res = m
+        res_temp = []
+        for j in range(len(population[i][0])):
+            if population[i][0][j] not in res_temp:
+                res_temp.append(population[i][0][j])
+        max_color = max(res_temp)
+        if max_color < res and population[i][1] == 0:
+            res = max_color
+
     print("Wynik: " + str(res + 1) + " kolorow")
     population.sort(key=lambda x: x[1])
     print(population)
@@ -59,8 +64,8 @@ def crossover(population, matrix):
     for i in range(1, len(population)):
         parent1 = population[0][0]
         parent2 = population[random.randint(i, len(population) - 1)][0]
-        div = random.randint(2, len(matrix) - 1)
-        # div = len(matrix) // 2
+        # div = random.randint(2, len(matrix) - 1)
+        div = len(matrix) // 2
         child = parent1[:div] + parent2[div:]
         fitness = list(find_fitness_score(child, matrix))
         if random.randint(1, 100) <= 20:
