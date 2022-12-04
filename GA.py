@@ -4,11 +4,12 @@ def genetic_algorithm(matrix, greedy_result):
     upper_bound = find_max_degree(matrix)
     population_size = 50
     population = generate_population(population_size, upper_bound, matrix)  # [ [zestaw chromosomow], fitness, [ lista zlych wierzcholkow ] ]
-    n_generations = 20000
+    n_generations = 50000
     population.sort(key=lambda x: x[1])
     it = 0
     best_chromosome = []
     res = upper_bound
+    res = len(matrix)
     while it < n_generations:
         print("generacja: " + str(it + 1))
         for i in range(population_size):
@@ -16,10 +17,9 @@ def genetic_algorithm(matrix, greedy_result):
                 crossover1(population, matrix, upper_bound)
             else:
                 crossover2(population, matrix, upper_bound)
-        # population = population[population_size:]
+        population = population[population_size:]
         population.sort(key=lambda x: x[1])    # sortuje populacje od najmniejszego fitness index
         population = population[:population_size] + generate_population(population_size//2, upper_bound, matrix)
-        res = len(matrix)
         for i in range(len(population)):
             res_temp = []
             for j in range(len(population[i][0])):
@@ -99,8 +99,12 @@ def crossover1(population, matrix, upper_bound):
 
 
 def crossover2(population, matrix, upper_bound):
-    child = population[0][0]
-    # fitness = list(find_fitness_score(child, matrix))
+    n = len(population)
+    parent1 = population[0][0]
+    parent2 = select_parent1(population, n)
+    crosspoint = random.randint(0, len(matrix) - 1)
+    child = parent1[:crosspoint] + parent2[crosspoint:]
+    fitness = list(find_fitness_score(child, matrix))
     child = mutation2(child, matrix, upper_bound)
     fitness = list(find_fitness_score(child, matrix))
     population.append([child, fitness[0], fitness[1]])

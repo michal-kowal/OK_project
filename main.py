@@ -88,8 +88,8 @@ def menu():
             zachlanny(matrix, len(matrix))
         elif wybor == '5' and (wczytaj or generuj):
             GA.genetic_algorithm(matrix, zachlanny(matrix, len(matrix)))
-            # graf.genetic_algorithm2(matrix)
-            # graf.genetic_algorithm3(matrix)
+            #graf.genetic_algorithm2(matrix)
+            #graf.genetic_algorithm3(matrix)
             break
         elif wybor == '0':
             print("Koniec pracy programu")
