@@ -12,7 +12,7 @@ def genetic_algorithm(matrix, greedy_result):
     while it < n_generations:
         print("generacja: " + str(it + 1))
         for i in range(population_size):
-            if  i % 2 == 0:
+            if population[i][1] < 4:
                 crossover1(population, matrix, upper_bound)
             else:
                 crossover2(population, matrix, upper_bound)
