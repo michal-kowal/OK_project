@@ -1,6 +1,6 @@
 import random
 import GA
-
+import graf
 
 def generuj_macierz(n):
     # generuj pusta macierz sasiedztwa
@@ -86,7 +86,9 @@ def menu():
         elif wybor == '4' and (wczytaj or generuj):
             zachlanny(matrix, len(matrix))
         elif wybor == '5' and (wczytaj or generuj):
-            GA.genetic_algorithm(matrix)
+            # GA.genetic_algorithm(matrix)
+            # graf.genetic_algorithm2(matrix)
+            graf.genetic_algorithm3(matrix)
             break
         elif wybor == '0':
             print("Koniec pracy programu")

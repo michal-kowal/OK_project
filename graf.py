@@ -150,6 +150,7 @@ def crossover4(population, matrix):
         population[i] = [child, fitness[0], fitness[1]]
     return population
 
+
 def mutation2(child, matrix):
     for i in range(len(child)):
         if (random.randint(0,100)<=30):
@@ -173,25 +174,3 @@ def mutation3(child, matrix):
                 child[i]-=1
     return child
 
-def generuj_macierz(n):
-    # generuj pusta macierz sasiedztwa
-    matrix = []
-    for i in range(n):
-        matrix.append([])
-        for j in range(n):
-            matrix[i].append(0)
-    return matrix
-
-def generuj_graf(n):
-    matrix = generuj_macierz(n)
-    for i in range(n):
-        for j in range(i + 1, n):
-            rand = random.randint(0, 1)
-            if rand == 1:
-                matrix[i][j] = 1
-                matrix[j][i] = 1
-    return matrix
-matrix=generuj_graf(10)
-genetic_algorithm2(matrix)
-for i in range (len(matrix)):
-    print(*matrix[i])
