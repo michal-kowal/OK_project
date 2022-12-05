@@ -14,7 +14,7 @@ def genetic_algorithm2(matrix):
         population.sort(key=lambda x: x[1]) 
     res = len(matrix)
     best_chromosome = []
-    for i in range(1, len(population)):
+    for i in range(len(population)):
         res_temp = []
         for j in range(len(population[i][0])):
             if population[i][0][j] not in res_temp:
@@ -46,7 +46,7 @@ def genetic_algorithm3(matrix):
             population.sort(key=lambda x: x[1]) 
         res = len(matrix)
         best_chromosome = []
-        for i in range(1, len(population)):
+        for i in range(len(population)):
             res_temp = []
             for j in range(len(population[i][0])):
                 if population[i][0][j] not in res_temp:
@@ -58,10 +58,6 @@ def genetic_algorithm3(matrix):
         if(res<wynik):
             wynik=res
             tab=copy.copy(best_chromosome)
-        print("Wynik: " + str(res) + " kolorow")
-        print("Pokolorowanie: ")
-        print(best_chromosome)
-        print(" ")
     print("Wynik: " + str(wynik) + " kolorow")
     print("Pokolorowanie: ")
     print(tab)
@@ -167,7 +163,7 @@ def mutation2(child, matrix):
     return child
 
 def mutation3(child, matrix):
-    if (random.randint(0,100)<=30):
+    if (random.randint(0,100)<=10):
         color=random.randint(1,max(child))
         for i in range (len(child)):
             if(child[i]==color):
