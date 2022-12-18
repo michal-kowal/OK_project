@@ -18,6 +18,7 @@ def genetic_algorithm(matrix, greedy_result, kolory):
         print("generacja: " + str(it + 1))
         for i in range(population_size):
             random.shuffle(population)
+            population.sort(key=lambda x: x[1])
             crossover(population, matrix, res, it, n_generations)
         not_fit_index = []
         for i in range(len(population)):
@@ -97,11 +98,12 @@ def crossover(population, matrix, upper_bound, generation, number_of_generations
         #parent2 = population[random.randint(0, n // 4)][0]
         # parent1 = select_parent1(population, n)
         parent2 = select_parent1(population, n)
+    #można by zmienić sposób losowania crosspointów np. c1=(0, len(matrix)//4), c2=(c1, len(matrix)//2) c3=(c2, len(matrix)//1.3)
     crosspoint1 = random.randint(0, len(matrix) - 1)
     crosspoint2 = random.randint(crosspoint1, len(matrix) - 1)
     crosspoint3 = random.randint(crosspoint2, len(matrix) - 1)
     #crosspoint = len(matrix) // 2
-    child = parent1[:crosspoint1] + parent2[crosspoint1:crosspoint2] + parent1[crosspoint2:crosspoint3] + parent1[crosspoint3:]
+    child = parent1[:crosspoint1] + parent2[crosspoint1:crosspoint2] + parent1[crosspoint2:crosspoint3] + parent2[crosspoint3:]
     fitness = list(find_fitness_score(child, matrix))
     other = False
     if fitness[0] > 2:
@@ -196,15 +198,15 @@ def mutation3(child, n, other):
 
 
 def mutation4(child):
-    color1 = random.randint(0, len(child) - 1)
-    color2 = random.randint(0, len(child) - 1)
+    color1 = child[random.randint(0, len(child) - 1)]
+    color2 = child[random.randint(0, len(child) - 1)]
     while color1 == color2:
-        color2 = random.randint(0, len(child) - 1)
+        color2 = child[random.randint(0, len(child) - 1)]
     for i in range(len(child)):
-        if child[i] == child[color1]:
-            child[i] = child[color2]
-        elif child[i] == child[color2]:
-            child[i] = child[color1]
+        if child[i] == color1:
+            child[i] = color2
+        elif child[i] == color2:
+            child[i] = color1
     return child
 
 
@@ -230,3 +232,57 @@ def mutation5(matrix, not_fit_index, population):
     population.append([chromosome1[0], fitness[0], fitness[1]])
     fitness = list(find_fitness_score(chromosome2[0], matrix))
     population.append([chromosome2[0], fitness[0], fitness[1]])
+    
+    def mutation6(child, matrix): #szansa, by zmienić kolor złego wierzchołka na inny użyty w grafie
+    colors = []
+    for i in range(len(child)):
+        if child[i] not in colors:
+            colors.append(child[i])
+    if random.randint(0,100)<50:
+        for i in range(len(child)):
+            prohibited = []
+            for j in range(len(child)):
+                if matrix[i][j] == 1 and child[j] not in prohibited:
+                    prohibited.append(child[j])
+            for j in range (3):
+                if child[i] not in prohibited:
+                    break
+                else:
+                    child[i] = colors[random.randint(0, len(colors) - 1)]
+    return child
+
+def mutation7(child, matrix): #zmienia numery kolorów na n pierwszych liczb naturalnych (n - liczba kolorów chromosomu), ale sprawia, że chromosomy są zbyt podobne
+    colors = []
+    for i in range(len(child)):
+        if child[i] not in colors:
+            colors.append(child[i])
+    i=0
+    while 1:
+        maximum=max(colors)
+        while i in colors:
+            i+=1
+        if(i>maximum):
+            break
+        else:
+            for j in range(len(child)):
+                if child[j]==maximum:
+                    child[j]=i
+            colors[colors.index(maximum)]=i
+    return child
+
+def mutation8(child, matrix): #zmienia kolor złego wierzchołka na dopuszczalny użyty w grafie
+    colors = []
+    for i in range(len(child)):
+        if child[i] not in colors:
+            colors.append(child[i])
+    for i in range(len(child)):
+        prohibited = []
+        for j in range(len(child)):
+            if matrix[i][j] == 1 and child[j] not in prohibited:
+                prohibited.append(child[j])
+        for j in range (len(colors)):
+            if child[i] not in prohibited:
+                break
+            else:
+                child[i] = colors[j]
+    return child
