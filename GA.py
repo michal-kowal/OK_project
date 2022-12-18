@@ -2,23 +2,24 @@ import random
 # REPREZENTACJA POPULACJI: [ [zestaw chromosomow], fitness, [ lista zlych wierzcholkow ] ]
 def genetic_algorithm(matrix, greedy_result, kolory):
     upper_bound = find_max_degree(matrix)
-    if greedy_result < upper_bound:
-        upper_bound = greedy_result
+    if greedy_result-1 < upper_bound:
+        upper_bound = greedy_result-1
     population_size = 50
     population = generate_population(population_size, upper_bound, matrix)  # [ [zestaw chromosomow], fitness, [ lista zlych wierzcholkow ] ]
-    population.append([kolory, 0, []])
+    population.append([kolory, 0, [], greedy_result])
     n_generations = 2000
     # population.sort(key=lambda x: x[1])
     it = 0
+    best_colors=population[0][3]
     best_chromosome = []
     res = upper_bound
-    population.sort(key=lambda x: x[1])
+    population.sort(key=lambda x: (x[1], x[3]))
     del population[population_size]
     while it < n_generations or population[0][1] != 0:
         print("generacja: " + str(it + 1))
         for i in range(population_size):
             random.shuffle(population)
-            population.sort(key=lambda x: x[1])
+            population.sort(key=lambda x: (x[1], x[3]))
             crossover(population, matrix, res, it, n_generations)
         not_fit_index = []
         for i in range(len(population)):
@@ -31,27 +32,37 @@ def genetic_algorithm(matrix, greedy_result, kolory):
             for i in range(population_size // 4):
                 population.append(generate_population(1, res - random.randint(1, 3), matrix)[0])
         # Mozna jeszcze wymyslic jakas mutacje dla najlepszego chromosomu zachodzaca od czasu do czasu, wybierac 1 kolor i zastepujac go pozostalymi dostepnymi
-        population.sort(key=lambda x: x[1])    # sortuje populacje od najmniejszego fitness index
+        population=population[::-1]
+        population.sort(key=lambda x: (x[1], x[3]))    # sortuje populacje od najmniejszego fitness index
         population = population[:population_size]
-        for i in range(len(population)):
-            res_temp = []
-            for j in range(len(population[i][0])):
-                if population[i][0][j] not in res_temp:
-                    res_temp.append(population[i][0][j])
-            max_color = len(res_temp)
-            if max_color <= res and population[i][1] == 0:
-                res = max_color
-                best_chromosome = population[i][0]
+        if(population[0][3]<best_colors):
+            best_colors=population[0][3]
+        for i in range(1, len(population)):
+            if population[i][3]>=best_colors:
+                population[i][0]=mutation3(population[i][0], (population[i][3]-best_colors)+1, False)
+                fitness = list(find_fitness_score(population[i][0], matrix))
+                population[i][1]=fitness[0]
+                population[i][2]=fitness[1]
+                population[i][3]=count_colors(population[i][0],matrix)
+
         it += 1
-        print("Wynik: " + str(res))
+        print("Wynik: " + str(population[0][3]))
         #print(population)
         print(population[1][1])
+
     print("Wynik: " + str(res) + " kolorow")
     print("Pokolorowanie: ")
     print(best_chromosome)
-    population.sort(key=lambda x: x[1])
+    population.sort(key=lambda x: (x[1], x[3]))
     print("\n")
     [print(*population[i]) for i in range(len(population))]
+
+def count_colors(individual, matrix):
+    res_temp = []
+    for j in range(len(matrix)):
+        if individual[j] not in res_temp:
+            res_temp.append(individual[j])
+    return len(res_temp)
 
 
 def find_max_degree(matrix):
@@ -83,7 +94,7 @@ def generate_population(size, k, matrix):
         for j in range(len(matrix)):
             individual.append(random.randint(0, k))
         fitness = list(find_fitness_score(individual, matrix))
-        population.append([individual, fitness[0], fitness[1]])
+        population.append([individual, fitness[0], fitness[1], count_colors(individual, matrix)])
         individual = []
     return population
 
@@ -143,8 +154,10 @@ def crossover(population, matrix, upper_bound, generation, number_of_generations
                 else:
                     #print("MUTACJA 3")
                     child = mutation3(child, 1, other)
+        if random.randint(1, 100) < 10:
+            child = mutation7(child, matrix)
     fitness = list(find_fitness_score(child, matrix))
-    population.append([child, fitness[0], fitness[1]])
+    population.append([child, fitness[0], fitness[1], count_colors(child, matrix)])
 
 
 def select_parent1(population, n):
@@ -229,11 +242,11 @@ def mutation5(matrix, not_fit_index, population):
             index2 += 1
         i += 1
     fitness = list(find_fitness_score(chromosome1[0], matrix))
-    population.append([chromosome1[0], fitness[0], fitness[1]])
+    population.append([chromosome1[0], fitness[0], fitness[1],count_colors(chromosome1[0], matrix)])
     fitness = list(find_fitness_score(chromosome2[0], matrix))
-    population.append([chromosome2[0], fitness[0], fitness[1]])
+    population.append([chromosome2[0], fitness[0], fitness[1],count_colors(chromosome2[0], matrix)])
     
-    def mutation6(child, matrix): #szansa, by zmienić kolor złego wierzchołka na inny użyty w grafie
+def mutation6(child, matrix): #szansa, by zmienić kolor złego wierzchołka na inny użyty w grafie
     colors = []
     for i in range(len(child)):
         if child[i] not in colors:
