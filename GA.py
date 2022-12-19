@@ -7,7 +7,7 @@ def genetic_algorithm(matrix, greedy_result, kolory):
     population_size = 50
     population = generate_population(population_size, upper_bound, matrix)  # [ [zestaw chromosomow], fitness, [ lista zlych wierzcholkow ] ]
     population.append([kolory, 0, [], greedy_result])
-    n_generations = 2000
+    n_generations = 1000
     # population.sort(key=lambda x: x[1])
     it = 0
     best_colors=population[0][3]
@@ -44,13 +44,19 @@ def genetic_algorithm(matrix, greedy_result, kolory):
                 population[i][1]=fitness[0]
                 population[i][2]=fitness[1]
                 population[i][3]=count_colors(population[i][0],matrix)
+                #UWAGA
+                # population[i][0] = mutation1(population[i][0], matrix, fitness[1], population[i][3])
+                # fitness = list(find_fitness_score(population[i][0], matrix))
+                # population[i][1] = fitness[0]
+                # population[i][2] = fitness[1]
+                # population[i][3] = count_colors(population[i][0], matrix)
 
         it += 1
-        print("Wynik: " + str(population[0][3]))
+        print("Wynik: " + str(population[0][3]) + " " + str(population[1][1]))
         #print(population)
-        print(population[1][1])
+        #print(population[1][1])
 
-    print("Wynik: " + str(res) + " kolorow")
+    print("Wynik: " + str(population[0][3]) + " kolorow")
     print("Pokolorowanie: ")
     print(best_chromosome)
     population.sort(key=lambda x: (x[1], x[3]))
@@ -102,17 +108,17 @@ def generate_population(size, k, matrix):
 def crossover(population, matrix, upper_bound, generation, number_of_generations):
     n = len(population)
     if population[1][1] > len(matrix) / 4 and random.randint(1, 100) > 0:
-        parent1 = population[random.randint(0, n // 8)][0]
-        parent2 = population[random.randint(0, n // 8)][0]
+        parent1 = population[random.randint(0, n // 9)][0]
+        parent2 = population[random.randint(0, n // 9)][0]
     else:
         parent1 = population[random.randint(0, n // 4)][0]
         #parent2 = population[random.randint(0, n // 4)][0]
         # parent1 = select_parent1(population, n)
         parent2 = select_parent1(population, n)
     #można by zmienić sposób losowania crosspointów np. c1=(0, len(matrix)//4), c2=(c1, len(matrix)//2) c3=(c2, len(matrix)//1.3)
-    crosspoint1 = random.randint(0, len(matrix) - 1)
-    crosspoint2 = random.randint(crosspoint1, len(matrix) - 1)
-    crosspoint3 = random.randint(crosspoint2, len(matrix) - 1)
+    crosspoint1 = random.randint(0, len(matrix)//4)
+    crosspoint2 = random.randint(crosspoint1, len(matrix)//2)
+    crosspoint3 = random.randint(crosspoint2, 3*len(matrix)//4)
     #crosspoint = len(matrix) // 2
     child = parent1[:crosspoint1] + parent2[crosspoint1:crosspoint2] + parent1[crosspoint2:crosspoint3] + parent2[crosspoint3:]
     fitness = list(find_fitness_score(child, matrix))
@@ -127,35 +133,36 @@ def crossover(population, matrix, upper_bound, generation, number_of_generations
             if random.randint(1, 100) < 15:
                 child = child[::-1]
     else:
-        if generation / number_of_generations < 0.1:
-            #print("MUTACJA 3")
-            for i in range(4):
-                child = mutation3(child, 1, other)
-            # child = mutation3(child, 4, other)
-        elif 0.1 < generation / number_of_generations < 0.25:
-            #print("MUTACJA 3")
-            for i in range(3):
-                child = mutation3(child, 1, other)
-            #child = mutation3(child, 3, other)
-        elif 0.3 < generation / number_of_generations < 0.5:
-            #print("MUTACJA 3")
-            # child = mutation3(child, 2, other)
-            for i in range(2):
-                child = mutation3(child, 1, other)
-        else:
-            if random.randint(1, 100) < 20:
-                #print("MUTACJA 4")
-                child = mutation4(child)
-            else:
-
-                if random.randint(1, 100) < 5:
-                    other = True
-                    child = mutation3(child, 1, other)
-                else:
-                    #print("MUTACJA 3")
-                    child = mutation3(child, 1, other)
-        if random.randint(1, 100) < 10:
-            child = mutation7(child, matrix)
+        child=mutation8(child, matrix, fitness[1])
+    #     if generation / number_of_generations < 0.1:
+    #         #print("MUTACJA 3")
+    #         for i in range(4):
+    #             child = mutation3(child, 1, other)
+    #         # child = mutation3(child, 4, other)
+    #     elif 0.1 < generation / number_of_generations < 0.25:
+    #         #print("MUTACJA 3")
+    #         for i in range(3):
+    #             child = mutation3(child, 1, other)
+    #         #child = mutation3(child, 3, other)
+    #     elif 0.3 < generation / number_of_generations < 0.5:
+    #         #print("MUTACJA 3")
+    #         # child = mutation3(child, 2, other)
+    #         for i in range(2):
+    #             child = mutation3(child, 1, other)
+    #     else:
+    #         if random.randint(1, 100) < 20:
+    #             #print("MUTACJA 4")
+    #             child = mutation4(child)
+    #         else:
+    #
+    #             if random.randint(1, 100) < 5:
+    #                 other = True
+    #                 child = mutation3(child, 1, other)
+    #             else:
+    #                 #print("MUTACJA 3")
+    #                 child = mutation3(child, 1, other)
+    #     if random.randint(1, 100) < 10:
+    #         child = mutation7(child, matrix)
     fitness = list(find_fitness_score(child, matrix))
     population.append([child, fitness[0], fitness[1], count_colors(child, matrix)])
 
@@ -204,24 +211,36 @@ def mutation3(child, n, other):
             x = random.randint(0, len(colors) - 1)
             colors_to_cut.append(colors[x][0])
             del colors[x]
+    # zmienic na to wybieral drugi najmniej uzywany kolor a nie losowy z dopuszczalnych
     for i in range(len(child)):
         if child[i] in colors_to_cut:
             child[i] = colors[random.randint(0, len(colors) - 1)][0]
     return child
 
 
-def mutation4(child):
-    color1 = child[random.randint(0, len(child) - 1)]
-    color2 = child[random.randint(0, len(child) - 1)]
-    while color1 == color2:
-        color2 = child[random.randint(0, len(child) - 1)]
-    for i in range(len(child)):
-        if child[i] == color1:
-            child[i] = color2
-        elif child[i] == color2:
-            child[i] = color1
-    return child
+# def mutation4(child):
+#     color1 = child[random.randint(0, len(child) - 1)]
+#     color2 = child[random.randint(0, len(child) - 1)]
+#     while color1 == color2:
+#         color2 = child[random.randint(0, len(child) - 1)]
+#     for i in range(len(child)):
+#         if child[i] == color1:
+#             child[i] = color2
+#         elif child[i] == color2:
+#             child[i] = color1
+#     return child
 
+def mutation4(child):
+    color1 = random.randint(0, len(child) - 1)
+    color2 = random.randint(0, len(child) - 1)
+    while color1 == color2:
+        color2 = random.randint(0, len(child) - 1)
+    for i in range(len(child)):
+        if child[i] == child[color1]:
+            child[i] = child[color2]
+        elif child[i] == child[color2]:
+            child[i] = child[color1]
+    return child
 
 def mutation5(matrix, not_fit_index, population):
     index1 = 0
@@ -283,12 +302,14 @@ def mutation7(child, matrix): #zmienia numery kolorów na n pierwszych liczb nat
             colors[colors.index(maximum)]=i
     return child
 
-def mutation8(child, matrix): #zmienia kolor złego wierzchołka na dopuszczalny użyty w grafie
+def mutation8(child, matrix, fitness): #zmienia kolor złego wierzchołka na dopuszczalny użyty w grafie
     colors = []
     for i in range(len(child)):
         if child[i] not in colors:
             colors.append(child[i])
-    for i in range(len(child)):
+    random.shuffle(colors)
+    random.shuffle(fitness)
+    for i in range(len(fitness)):
         prohibited = []
         for j in range(len(child)):
             if matrix[i][j] == 1 and child[j] not in prohibited:
