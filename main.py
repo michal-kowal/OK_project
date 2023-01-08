@@ -44,10 +44,14 @@ def generuj_graf(n):
     return matrix
 
 
-def zachlanny(matrix, n):
+def zachlanny(matrix, n, mode):     # mode = 0 (standardowy algorytm); mode = 1 (losowy wybor wierzcholkow)
     kolory = [0] * n
-    print("Wierzchołki i ich kolory:\n")
-    for i in range(n):
+    if mode == 0:
+        print("Wierzchołki i ich kolory:\n")
+    r = list(range(n))
+    if mode == 1:
+        random.shuffle(r)
+    for i in r:
         if (kolory[i] == 0):
             check = 0
             barwa = 1
@@ -60,8 +64,10 @@ def zachlanny(matrix, n):
                             barwa += 1
                             break
             kolory[i] = barwa
-        print(i, "\t", kolory[i])
-    print("Użyto", max(kolory), "kolorów")
+        if mode == 0:
+            print(i, "\t", kolory[i])
+    if mode == 0:
+        print("Użyto", max(kolory), "kolorów")
     return max(kolory), kolory
 
 
@@ -85,9 +91,9 @@ def menu():
         elif wybor == '3' and (wczytaj or generuj):
             [print(*matrix[i]) for i in range(len(matrix))]
         elif wybor == '4' and (wczytaj or generuj):
-            zachlanny(matrix, len(matrix))
+            zachlanny(matrix, len(matrix), 0)
         elif wybor == '5' and (wczytaj or generuj):
-            res_zachlanny = list(zachlanny(matrix, len(matrix)))
+            res_zachlanny = list(zachlanny(matrix, len(matrix), 0))
             GA.genetic_algorithm(matrix, res_zachlanny[0], res_zachlanny[1])
             break
         elif wybor == '0':
